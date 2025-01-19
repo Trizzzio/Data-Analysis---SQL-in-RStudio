@@ -4,6 +4,7 @@ library(dplyr)
 library(tidyr)
 library(lubridate)
 library(zoo)
+library(plotly)
 
 ##Query indices data
 
@@ -12,7 +13,8 @@ indices_data <- dbGetQuery(conn,"
    SELECT symbol, date, close
    FROM indices_data
    WHERE symbol IN ('^GDAXI', '^GSPC', '^FTSE', '^DJI')
-   ORDER BY DATE")
+   AND date BETWEEN '2020-01-01' AND '2023-12-31'
+   ORDER BY date")
 
 
 ##Convert date, close and calcualte returns
@@ -69,7 +71,16 @@ ggplot(correlations, aes(x = date, y = correlations, color = pair)) +
     color = "Index Pair"
   ) +
   theme_minimal() +
+  theme(plot.background = element_rect(fill = "white", color = NA)) +
   scale_color_manual(values = c("corr_dax_sp500" = "blue", 
                                 "corr_dax_dji" = "red"))
+
+#+ annotate("rect", xmin = as.Date("2020-03-01"), xmax = as.Date("2020-04-30"),
+#ymin = -1, ymax = 1, alpha = 0.2, fill = "gray")
+
+
+#interactive version
+ggplotly()
+ggsave("rolling_correlations.png", width = 10, height = 6)
 
 
